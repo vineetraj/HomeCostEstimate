@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -26,17 +27,23 @@ import java.io.IOException;
 
 public class FeetCalculator extends Application {
     private static final String defaultFileName = "";
-    CheckBox cb1 = new CheckBox("hello");
+    CheckBox cb1 = new CheckBox("E/W in excavation of soil");
     CheckBox cb2 = new CheckBox("world");
+    double res;
     private Stage savedStage;
     private boolean flag2 = false;
+    private TextField custName = new TextField();
     private TextField Feet = new TextField();
     private TextField inches = new TextField();
     private TextField totalFeet = new TextField();
     private TextField expression = new TextField();
-    private TextField result = new TextField();
+    private Text result = new Text();
+    private TextField rate = new TextField();
+
+    private Text tAmt = new Text();
     private Button btConvert = new Button("Convert");
-    private Button btCalculate = new Button("Calculate");
+    private Button btCalculateQty = new Button("Calculate Qty.");
+    private Button btAmount = new Button("Calculate Amt.");
     private Button generate = new Button("Generate");
 
     private Text actionTarget = new Text("");
@@ -67,17 +74,29 @@ public class FeetCalculator extends Application {
         gridPane.add(totalFeet, 1, 2);
         gridPane.add(btConvert, 1, 3);
 
-        gridPane.add(new Label("Enter Expression:"), 0, 4);
-        gridPane.add(expression, 1, 4);
-        gridPane.add(new Label("Result:"), 0, 5);
-        gridPane.add(result, 1, 5);
-        gridPane.add(btCalculate, 1, 6);
+        gridPane.add(new Label("Enter Expression:"), 0, 5);
+        gridPane.add(expression, 1, 5);
+        gridPane.add(new Label("Result:"), 2, 5);
+        gridPane.add(result, 3, 5);
+        gridPane.add(new Label("Enter Rate %:"), 4, 5);
+        gridPane.add(rate, 5, 5);
+        gridPane.add(new Label("Amount:"), 6, 5);
+        gridPane.add(tAmt, 7, 5);
+        gridPane.add(btCalculateQty, 1, 6);
+        gridPane.add(btAmount, 5, 6);
 
-        gridPane.add(cb1, 0, 7);
+        gridPane.add(cb1, 0, 4);
         gridPane.add(cb2, 1, 7);
 
         gridPane.add(generate, 0, 8);
         gridPane.add(actionTarget, 0, 9);
+        gridPane.add(custName, 0, 10);
+
+        final Separator sepHor = new Separator();
+        sepHor.setValignment(VPos.CENTER);
+        GridPane.setConstraints(sepHor, 1, 4);
+        GridPane.setColumnSpan(sepHor, 10);
+        gridPane.getChildren().add(sepHor);
 
         // Set properties for UI
         gridPane.setAlignment(Pos.CENTER);
@@ -86,10 +105,10 @@ public class FeetCalculator extends Application {
         totalFeet.setAlignment(Pos.BOTTOM_RIGHT);
         btConvert.setAlignment(Pos.BOTTOM_RIGHT);
         expression.setAlignment(Pos.BOTTOM_RIGHT);
-        result.setAlignment(Pos.BOTTOM_RIGHT);
+        //result.setAlignment(Pos.BOTTOM_RIGHT);
 
         totalFeet.setEditable(false);
-        result.setEditable(false);
+        //result.setEditable(false);
         GridPane.setHalignment(btConvert, HPos.RIGHT);
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -97,9 +116,10 @@ public class FeetCalculator extends Application {
         scrollPane.setContent(gridPane);
 
         // Process events
-        btConvert.setOnAction(e -> Convert());
-        btCalculate.setOnAction(event -> calculate());
-        generate.setOnAction(clickevent -> {
+        btConvert.setOnAction(event -> Convert());
+        btCalculateQty.setOnAction(event -> calculateQty());
+        btAmount.setOnAction(event -> calculateAmount());
+        generate.setOnAction(event -> {
             try {
                 Generate();
             } catch (IOException e) {
@@ -137,11 +157,16 @@ public class FeetCalculator extends Application {
         totalFeet.setText(String.format("%.2f", result));
     }
 
-    private void calculate() {
+    private void calculateAmount() {
+        double amountVal = (res * Double.valueOf(rate.getText()) / 100);
+        tAmt.setText(String.valueOf(amountVal));
+    }
+
+    private void calculateQty() {
         // Get values from text fields
 
         Expression e = new ExpressionBuilder(expression.getText()).build();
-        double res = e.evaluate();
+        res = e.evaluate();
 
         result.setText(String.valueOf(res));
     }
@@ -189,13 +214,15 @@ public class FeetCalculator extends Application {
         //create paragraph
         XWPFParagraph paragraph = document.createParagraph();
 
+        String name = custName.getText();
+
         //Set alignment paragraph to RIGHT
         paragraph.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun run = paragraph.createRun();
         run.setBold(true);
         run.setFontSize(24);
         run.setText("Estimated cost of residential building extention/ renovation G.F.&F.F) of" +
-                " smt. Mala Devi W/O Mr. Kamlesh baitha Khata-76 Plot No-386, Muhalla-Agarwa" +
+                custName.getText() + " W/O Mr. Kamlesh baitha Khata-76 Plot No-386, Muhalla-Agarwa" +
                 " Tauji No-51 MOTIHARI (EastChamparan)");
 
         if (flag2) {
