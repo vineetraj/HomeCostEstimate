@@ -1,5 +1,5 @@
 /**
- * Created by vineet on 31-Mar-17.
+ * Created by vineet on 15-Apr-17.
  */
 
 import javafx.application.Application;
@@ -17,6 +17,13 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -27,7 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class FeetCalculator extends Application {
+public class ExcelOutput extends Application {
     private static final String defaultFileName = "";
     private Stage savedStage;
     private ArrayList<Double> a1 = new ArrayList<>();
@@ -36,7 +43,10 @@ public class FeetCalculator extends Application {
     private double sum, ultimateSum, ultimateGrandSum = 0;
 
     private int index = 1;
+    private int indexX = 1;
+    private int rowIndex = 5;
     private char subIndex = 'a';
+    private char subIndexX = 'a';
 
     private TextField tankSize = new TextField();
     private TextField graniteSize = new TextField();
@@ -261,6 +271,7 @@ public class FeetCalculator extends Application {
     private Button ultimateCal = new Button("Calculate cost of estimate without extra charges");
     private Text ultimateTarget = new Text();
 
+    private Button generateX = new Button("Generate Excel file");
     private Button generate = new Button("Generate Word file");
     private Text actionTarget = new Text("");
 
@@ -689,6 +700,7 @@ public class FeetCalculator extends Application {
         GridPane.setConstraints(sepHor17, 0, 84);
         GridPane.setColumnSpan(sepHor17, 15);
         gridPane.getChildren().add(sepHor17);
+        gridPane.add(generateX, 0, 85);
         gridPane.add(generate, 1, 85);
         gridPane.add(actionTarget, 2, 85);
 
@@ -931,6 +943,14 @@ public class FeetCalculator extends Application {
             }
         });
 
+        generateX.setOnAction(event -> {
+            try {
+                GenerateX();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         ewCB.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -1160,13 +1180,18 @@ public class FeetCalculator extends Application {
     }
 
     private void Generate() throws IOException {
-        actionTarget.setText("Document generated");
+        actionTarget.setText("Word Document generated");
         showSaveFileChooser();
+    }
+
+    private void GenerateX() throws IOException {
+        actionTarget.setText("Excel Sheet generated");
+        showSaveFileChooserX();
     }
 
     private void showSaveFileChooser() throws IOException {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save file");
+        fileChooser.setTitle("Save file As...");
         fileChooser.setInitialFileName(defaultFileName);
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Word file (*.docx)", "*.docx");
         fileChooser.getExtensionFilters().add(extFilter);
@@ -1194,6 +1219,498 @@ public class FeetCalculator extends Application {
         }
     }
 
+    private void showSaveFileChooserX() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save file As...");
+        fileChooser.setInitialFileName(defaultFileName);
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel file (*.xlsx)", "*.xlsx");
+        fileChooser.getExtensionFilters().add(extFilter);
+        File savedFile = fileChooser.showSaveDialog(savedStage);
+
+        //calling myFileWriter method which contains the logic for creating paragraph
+        XSSFWorkbook document1 = myFileWriterX();
+
+        if (savedFile != null) {
+
+            try {
+                //Write the Document in file system
+                FileOutputStream out = new FileOutputStream(new File(savedFile.toString()));
+                document1.write(out);
+                out.close();
+                //saveFileRoutine(savedFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+                actionTarget.setText("An ERROR occurred while saving the file!" + savedFile.toString());
+                return;
+            }
+            actionTarget.setText("File saved: " + savedFile.toString());
+        } else {
+            actionTarget.setText("File save cancelled.");
+        }
+    }
+
+    //For excel version of estimate
+
+    private XSSFWorkbook myFileWriterX() throws IOException {
+        //Blank workbook
+        XSSFWorkbook workbook = new XSSFWorkbook();
+
+        //create sheet
+        XSSFSheet spreadsheet = workbook.createSheet("Estimate");
+
+        //Create row object
+        XSSFRow row;
+
+        //set print area with indexes
+//        workbook.setPrintArea(
+//                0, //sheet index
+//                0, //start column
+//                4, //end column
+//                0, //start row
+//                100 //end row
+//        );
+
+        //set paper size
+        spreadsheet.getPrintSetup().setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
+        //set display grid lines or not
+        spreadsheet.setDisplayGridlines(true);
+        //set print grid lines or not
+        spreadsheet.setPrintGridlines(true);
+
+        //MERGING CELLS
+        spreadsheet.addMergedRegion(new CellRangeAddress(
+                0, //first row (0-based)
+                0, //last row (0-based)
+                0, //first column (0-based)
+                5 //last column (0-based)
+        ));
+        spreadsheet.addMergedRegion(new CellRangeAddress(
+                1, //first row (0-based)
+                1, //last row (0-based)
+                0, //first column (0-based)
+                5 //last column (0-based)
+        ));
+        spreadsheet.addMergedRegion(new CellRangeAddress(
+                2, //first row (0-based)
+                2, //last row (0-based)
+                0, //first column (0-based)
+                5 //last column (0-based)
+        ));
+        spreadsheet.addMergedRegion(new CellRangeAddress(
+                3, //first row (0-based)
+                3, //last row (0-based)
+                0, //first column (0-based)
+                5 //last column (0-based)
+        ));
+
+        CellStyle style = workbook.createCellStyle();//Create style
+        Font font = workbook.createFont();//Create font
+        font.setBold(true);//Make font bold
+        style.setFont(font);//set it to bold
+
+        row = spreadsheet.createRow(0);
+        row.createCell((short) 0).setCellValue("Estimated cost of " + custName.getText() + " " + custDetails.getText());
+
+        row = spreadsheet.createRow(1);
+        row.createCell((short) 0).setCellValue("BUILT UP G.F AREA- " + builtUp.getText() + " SFT");
+
+        row = spreadsheet.createRow(2);
+        row.createCell((short) 0).setCellValue("Abstract of cost (Based on current market rates)");
+
+        row = spreadsheet.createRow(4);
+        row.createCell((short) 0).setCellValue("Sl.No");
+        row.createCell((short) 1).setCellValue("Description");
+        row.createCell((short) 2).setCellValue("Quantity");
+        row.createCell((short) 3).setCellValue("Rate");
+        row.createCell((short) 4).setCellValue("Unit");
+        row.createCell((short) 5).setCellValue("Amount");
+
+        for (int i = 0; i <= 5; i++) {//For each cell in the row
+            row.getCell(i).setCellStyle(style);//Set the style
+        }
+
+        if (ewFlag) {
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("E/W in excavation of all types of" +
+                    " soil for both Main & support pocket" +
+                    " foundation including all cost of" +
+                    " labour & materials, etc. completion job");
+            //row.setHeight((short) 8000);
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt.getText());
+        }
+
+        if (bfFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing 1st class B.F." +
+                    " Soling with joints filled with local sand" +
+                    " on 6” Local sand including all cost of" +
+                    " labour & materials, etc. comp job");
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression1.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result1.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate1.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt1.getText());
+            rowIndex++;
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue("Local sand: " + result1.getText() + "X" + sandRate2.getText());
+            row.createCell((short) 2).setCellValue(result2.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate2.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt2.getText());
+        }
+
+        if (rcFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing R.C.C(1:2:4) with stone" +
+                    " chips, sone-sand including all cost of labour &" +
+                    " materials curing, shuttering etc. but excluding the" +
+                    " cost of reinforcement of following items:");
+            if (aFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Pocket (main & support)" + " = " + expressionA.getText().replace("*", "X") + " = " + resA.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (bFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". 10”x12” G.B." + " = " + expressionB.getText().replace("*", "X") + " = " + resB.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (cFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". 10”x10” Stiffeners" + " = " + expressionC.getText().replace("*", "X") + " = " + resC.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (dFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". 10”x6” Lintel band" + " = " + expressionD.getText().replace("*", "X") + " = " + resD.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (eFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Chajja, loft, etc." + " = " + expressionE.getText().replace("*", "X") + " = " + resE.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (fFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Roof slab" + " = " + expressionF.getText().replace("*", "X") + " = " + resF.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (gFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Stair case" + " = " + expressionG.getText().replace("*", "X") + " = " + resG.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (hFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Front Beam" + " = " + expressionH.getText().replace("*", "X") + " = " + resH.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (iFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". 10”x10” beam on 5” B/W under roof slab" + " = " + expressionI.getText().replace("*", "X") + " = " + resI.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (jFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". Veranda beam " + " = " + expressionJ.getText().replace("*", "X") + " = " + resJ.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            if (kFlag) {
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue(subIndex + ". R.C.C. railing through roof" + " = " + expressionK.getText().replace("*", "X") + " = " + resK.getText() + "cft" + "    ");
+                subIndexX++;
+                rowIndex++;
+            }
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue("Total= " + totalSum.getText() + "cft");
+            row.createCell((short) 2).setCellValue(totalSum.getText() + "cft");
+            row.createCell((short) 3).setCellValue(sumRate.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmtSum.getText());
+        }
+
+        if (thckBrkFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing 10” brick work in C.M. (1:6)" +
+                    " with sone sand and 1st class bricks including all" +
+                    " cost of labour & materials, curing etc. completion job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression3.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result3.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate3.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt3.getText());
+        }
+
+        if (thnBrkFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing 5” B/W in C.M. (1:5)" +
+                    " with sone-sand and 1st class bricks including all" +
+                    " cost of labour & materials, curing etc. completion job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression4.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result4.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate4.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt4.getText());
+        }
+
+        if (halfFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing 1\\2”C.P.in C.M. (1:6) with" +
+                    " sone-sand both sides including all cost of" +
+                    " labour & materials for both sides");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression5.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result5.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate5.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt5.getText());
+        }
+
+        if (qtrFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing 1\\4” C.P in C.M. (1:4) with" +
+                    " sone-sand including all cost of labour & materials," +
+                    " curing completion job.");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression6.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result6.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate6.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt6.getText());
+        }
+
+        if (steelFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing different diameter of steel" +
+                    " to the site including all cost of labour & materials," +
+                    " transportation cost, taxes etc.");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression7.getText().replace("*", "X") + "M.T.");
+            row.createCell((short) 2).setCellValue(result7.getText() + "M.T.");
+            row.createCell((short) 3).setCellValue(rate7.getText());
+            row.createCell((short) 4).setCellValue("P.M.T.");
+            row.createCell((short) 5).setCellValue(tAmt7.getText());
+        }
+
+        if (tankFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Provision of " + tankSize.getText() + " septic tank" +
+                    " with inlet outlet including all cost of" +
+                    " labour & materials completion Job.");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(" Lump Sum cost = " + tAmt8.getText());
+            row.createCell((short) 5).setCellValue(tAmt8.getText());
+        }
+
+        if (woodFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & providing with fixing well seasoned" +
+                    " sal wood for chaukhat & panel for doors & windows" +
+                    " including all cost of labour & materials completion job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression9.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result9.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate9.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt9.getText());
+        }
+
+        if (ipsFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & Providing 1” I.P.S(1:2:4) with punning" +
+                    " On 3” P.C.C.(1:3:6) with sone-sand,chips etc. including" +
+                    " all cost of labour & materials completion job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression10.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result10.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate10.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt10.getText());
+            rowIndex++;
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue("3” P.C.C.(1:3:6)" + result10.getText() + "X" + sandRate2A.getText());
+            row.createCell((short) 2).setCellValue(result2A.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate2A.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt2A.getText());
+        }
+
+        if (snowFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Two coats of snow cement to walls & ceiling" +
+                    " including all cost of labour & materials completion Job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression11.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result11.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate11.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt11.getText());
+        }
+
+        if (paintFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & Providing two coats of enamel paint to chaukhats & pannels" +
+                    " including all cost of labour & materials completion Job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression12.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result12.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate12.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt12.getText());
+        }
+
+        if (graniteFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 0).setCellValue((indexX + "."));
+            rowIndex++;
+            indexX++;
+            row.createCell((short) 1).setCellValue("Supplying & Providing " + graniteSize.getText() + " Granite on 3” P.C.C.\n" +
+                    " (1:3:6) with sone-sand, chips etc including all\n" +
+                    " cost of labors & materials completion Job");
+
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue(expression13.getText().replace("*", "X"));
+            row.createCell((short) 2).setCellValue(result13.getText() + "cft");
+            row.createCell((short) 3).setCellValue(rate13.getText());
+            row.createCell((short) 4).setCellValue("%cft");
+            row.createCell((short) 5).setCellValue(tAmt13.getText());
+        }
+
+        rowIndex = rowIndex + 2;
+        row = spreadsheet.createRow(rowIndex);
+        row.createCell((short) 1).setCellValue("TOTAL = ");
+        row.createCell((short) 5).setCellValue(String.valueOf(ultimateSum));
+
+        if (xtraFlag) {
+            rowIndex = rowIndex + 2;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue("EXTRA SERVICE CHARGES");
+
+            if (elecFlag) {
+                rowIndex++;
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue("Add " + elecPerc.getText() + " % for electrical services");
+            }
+            if (sanitaryFlag) {
+                rowIndex++;
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue("Add " + sanitaryPerc.getText() + " % for sanitary services");
+            }
+            if (extraFlag) {
+                rowIndex++;
+                row = spreadsheet.createRow(rowIndex);
+                row.createCell((short) 1).setCellValue("Add " + extraPerc.getText() + " % for extra services");
+            }
+            rowIndex++;
+            row = spreadsheet.createRow(rowIndex);
+            row.createCell((short) 1).setCellValue("Total " + totalPerc.getText() + " % charges extra");
+        }
+        rowIndex = rowIndex + 2;
+        row = spreadsheet.createRow(rowIndex);
+        row.createCell((short) 1).setCellValue("GRAND TOTAL = ");
+        row.createCell((short) 5).setCellValue(String.valueOf(ultimateGrandSum));
+
+        // for auto-sizing the column
+        for (int i = 0; i < 100; i++) {
+            spreadsheet.autoSizeColumn(i);
+        }
+        return workbook;
+    }
+
+    //for word version of file
     private XWPFDocument myFileWriter() throws IOException {
         //Blank Document
         XWPFDocument document = new XWPFDocument();
@@ -1277,8 +1794,8 @@ public class FeetCalculator extends Application {
             paragraph.setAlignment(ParagraphAlignment.LEFT);
             run = paragraph.createRun();
             run.setText(index + ". Supplying & providing R.C.C(1:2:4) with stone" +
-                    " Chips sone-sand including all cost of labour &" +
-                    " materials curing shuttering etc. but excluding the" +
+                    " chips, sone-sand including all cost of labour &" +
+                    " materials curing, shuttering etc. but excluding the" +
                     " cost of reinforcement of following items:");
             index++;
 
@@ -1291,8 +1808,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". Pocket (main & support)");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionA.getText().replace("*", "X") + "cft" + "    ");
                 run.setText(" = " + resA.getText() + "cft" + "    ");
             }
@@ -1306,8 +1821,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". 10”x12” G.B.");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionB.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resB.getText() + "cft" + "    ");
             }
@@ -1321,8 +1834,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". 10”x10” Stiffeners");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionC.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resC.getText() + "cft" + "    ");
             }
@@ -1336,8 +1847,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". 10”x6” Lintel band");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionD.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resD.getText() + "cft" + "    ");
             }
@@ -1351,8 +1860,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". Chajja, loft, etc.");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionE.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resE.getText() + "cft" + "    ");
             }
@@ -1366,8 +1873,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". Roof slab");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionF.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resF.getText() + "cft" + "    ");
             }
@@ -1381,8 +1886,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". Stair case");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionG.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resG.getText() + "cft" + "    ");
             }
@@ -1396,8 +1899,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". Front Beam");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionH.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resH.getText() + "cft" + "    ");
             }
@@ -1411,8 +1912,6 @@ public class FeetCalculator extends Application {
                 run.setText(subIndex + ". 10”x10” beam on 5” B/W under roof slab");
                 subIndex++;
 
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
                 run.setText(" = " + expressionI.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resI.getText() + "cft" + "    ");
             }
@@ -1425,8 +1924,7 @@ public class FeetCalculator extends Application {
                 run = paragraph.createRun();
                 run.setText(subIndex + ". Veranda beam ");
                 subIndex++;
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
+
                 run.setText(" = " + expressionJ.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resJ.getText() + "cft" + "    ");
             }
@@ -1439,8 +1937,7 @@ public class FeetCalculator extends Application {
                 run = paragraph.createRun();
                 run.setText(subIndex + ". R.C.C. railing through roof");
                 subIndex++;
-//                paragraph = document.createParagraph();
-//                run = paragraph.createRun();
+
                 run.setText(" = " + expressionK.getText().replace("*", "X") + "    ");
                 run.setText(" = " + resK.getText() + "cft" + "    ");
             }
@@ -1638,7 +2135,7 @@ public class FeetCalculator extends Application {
             paragraph.setAlignment(ParagraphAlignment.LEFT);
             run = paragraph.createRun();
             run.setText(index + ". Supplying & Providing two coats of enamel paint to chaukhats & pannels" +
-                    " including all cost of lab our & materials completion Job");
+                    " including all cost of labour & materials completion Job");
             index++;
 
             paragraph = document.createParagraph();
@@ -1655,9 +2152,9 @@ public class FeetCalculator extends Application {
             //Set alignment paragraph to RIGHT
             paragraph.setAlignment(ParagraphAlignment.LEFT);
             run = paragraph.createRun();
-            run.setText(index + ". Supplying & Providing " + graniteSize.getText() + " GRANITE On 3” P.C.C.\n" +
-                    " (1:3:6) with sone-sand,chips etc including all\n" +
-                    " cost of labours & materials completion Job");
+            run.setText(index + ". Supplying & Providing " + graniteSize.getText() + " Granite on 3” P.C.C.\n" +
+                    " (1:3:6) with sone-sand, chips etc including all\n" +
+                    " cost of labors & materials completion Job");
             index++;
 
             paragraph = document.createParagraph();
