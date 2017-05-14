@@ -1385,77 +1385,77 @@ public class ExcelOutput extends Application {
                     " cost of reinforcement of following items:");
             if (aFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Pocket (main & support)" + " = " + expressionA.getText().replace("*", "X") + " = " + resA.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Pocket (main & support)" + " = " + expressionA.getText().replace("*", "X") + " = " + resA.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (bFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". 10”x12” G.B." + " = " + expressionB.getText().replace("*", "X") + " = " + resB.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". 10”x12” G.B." + " = " + expressionB.getText().replace("*", "X") + " = " + resB.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (cFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". 10”x10” Stiffeners" + " = " + expressionC.getText().replace("*", "X") + " = " + resC.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". 10”x10” Stiffeners" + " = " + expressionC.getText().replace("*", "X") + " = " + resC.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (dFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". 10”x6” Lintel band" + " = " + expressionD.getText().replace("*", "X") + " = " + resD.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". 10”x6” Lintel band" + " = " + expressionD.getText().replace("*", "X") + " = " + resD.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (eFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Chajja, loft, etc." + " = " + expressionE.getText().replace("*", "X") + " = " + resE.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Chajja, loft, etc." + " = " + expressionE.getText().replace("*", "X") + " = " + resE.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (fFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Roof slab" + " = " + expressionF.getText().replace("*", "X") + " = " + resF.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Roof slab" + " = " + expressionF.getText().replace("*", "X") + " = " + resF.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (gFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Stair case" + " = " + expressionG.getText().replace("*", "X") + " = " + resG.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Stair case" + " = " + expressionG.getText().replace("*", "X") + " = " + resG.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (hFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Front Beam" + " = " + expressionH.getText().replace("*", "X") + " = " + resH.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Front Beam" + " = " + expressionH.getText().replace("*", "X") + " = " + resH.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (iFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". 10”x10” beam on 5” B/W under roof slab" + " = " + expressionI.getText().replace("*", "X") + " = " + resI.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". 10”x10” beam on 5” B/W under roof slab" + " = " + expressionI.getText().replace("*", "X") + " = " + resI.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (jFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". Veranda beam " + " = " + expressionJ.getText().replace("*", "X") + " = " + resJ.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". Veranda beam " + " = " + expressionJ.getText().replace("*", "X") + " = " + resJ.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
 
             if (kFlag) {
                 row = spreadsheet.createRow(rowIndex);
-                row.createCell((short) 1).setCellValue(subIndex + ". R.C.C. railing through roof" + " = " + expressionK.getText().replace("*", "X") + " = " + resK.getText() + "cft" + "    ");
+                row.createCell((short) 1).setCellValue(subIndexX + ". R.C.C. railing through roof" + " = " + expressionK.getText().replace("*", "X") + " = " + resK.getText() + "cft" + "    ");
                 subIndexX++;
                 rowIndex++;
             }
